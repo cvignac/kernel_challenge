@@ -7,17 +7,16 @@ class Classifier(ABC):
     def __init__(self):
         pass
 
+    @abstractmethod
     def fit(self, X, y):
-        return self.clf.fit(X, y)
+        pass
+
+    @abstractmethod
+    def predict_proba(self, X):
+        pass
 
     def predict(self, X):
-        try:
-            return self.clf.predict(X)
-        except AttributeError:
-            return np.asarray(self.model.predict_proba(X) > 0.5, dtype=int)
-
-    def predict_proba(self, X):
-        return self.clf.predict_proba(X)
+        return np.asarray(selfpredict_proba(X) > 0.5, dtype=int)
 
     def score(Y, Ytrue):
         ''' Accuracy metric.'''
@@ -27,6 +26,23 @@ class Classifier(ABC):
         return np.sum(Y.flatten != Ytrue) / len(Y)
 
 
-class MyClassifier(Classifier):
-    def __init__(self):
+class KLR(Classifier):
+    def __init__(self, kernel, lamb=1):
+        ''' Kernel Logistic regression.
+        kernel (object): instance of the abstract class Kernel
+        lamb (float): ridge parameter
+        Ktr (np.ndarray): Kernel matrix for the training set
+        '''
+        self.lamb = lamb
+        self.Ktr = None
+        self.kernel = kernel
+
+    def fit(self, X, y):
+        self.K_tr = self.kernel(X)
+
+    def predict():
         pass
+
+
+if __name__ == '__main__':
+    # Tests go here

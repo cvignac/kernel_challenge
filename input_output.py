@@ -8,11 +8,13 @@ def process_submission_file(Ysub):
     '''
     pass
 
+
 def load_full(submission_files):
     ''' Load the full dataset as a training set in order to submit
         the prediction.'''
     X = None
     return X
+
 
 def load_split(train_files, percent_test):
     ''' Load files and split them into train and test examples.'''

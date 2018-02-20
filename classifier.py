@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.random as npr
 from abc import ABC, abstractmethod
 
 
@@ -16,14 +17,28 @@ class Classifier(ABC):
         pass
 
     def predict(self, X):
-        return np.asarray(selfpredict_proba(X) > 0.5, dtype=int)
+        return np.asarray(self.predict_proba(X) > 0.5, dtype=np.bool)
 
     def score(Y, Ytrue):
         ''' Accuracy metric.'''
         Y, Ytrue = Y.flatten(), Ytrue.flatten()
         assert len(Y) == len(Ytrue), 'len(Y)={} but len(Ytrue)={}'.format(
                 len(Y), len(Ytrue))
-        return np.sum(Y.flatten != Ytrue) / len(Y)
+        return np.sum(Y == Ytrue) / len(Y)
+
+
+class RandomClassifier(Classifier):
+    def __init__(self):
+        '''For testing purpose only.'''
+        return
+
+    def fit(self, X, y):
+        return
+
+    def predict_proba(self, X):
+        n = X.shape[0]
+        Y = npr.rand(n)
+        return Y
 
 
 class KLR(Classifier):
@@ -46,3 +61,7 @@ class KLR(Classifier):
 
 if __name__ == '__main__':
     # Tests go here
+    Y1 = np.array([True, True, False])
+    Y2 = np.array([False, False, False])
+    print(Classifier.score(Y1, Y2))
+    pass

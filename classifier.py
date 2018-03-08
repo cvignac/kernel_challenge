@@ -1,6 +1,9 @@
 import numpy as np
 import numpy.random as npr
 from abc import ABC, abstractmethod
+import kernels
+
+from sklearn import svm
 
 
 class Classifier(ABC):
@@ -58,6 +61,23 @@ class KLR(Classifier):
 
     def predict():
         pass
+
+
+class SpectralKernelSVM(Classifier):
+    def __init__(self, l=3):
+        self.l = l
+        self.ker = kernels.Spectral(l=l)
+        self.svm = svm.SVC(kernel=self.ker)
+
+    def fit(self, X, y):
+        self.svm.fit(self.ker.build_features(X), y)
+
+    def predict_proba(self, X):
+        pass
+
+    def predict(self, X):
+        return self.svm.predict(self.ker.build_features(X))
+
 
 
 if __name__ == '__main__':

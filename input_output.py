@@ -15,10 +15,10 @@ def process_submission_file(output_name, Ysub):
     np.savetxt(output_name, Y, '%i', ',', header='Id,Bound', comments='')
 
 
-def load_X_full(filename):
+def load_X_full(filename, data_type):
     ''' Load the full dataset as a training set in order to submit
         the prediction.'''
-    X = np.loadtxt(filename)
+    X = np.loadtxt(filename, dtype=data_type)
     return X
 
 def load_Y_full(filename):
@@ -26,9 +26,9 @@ def load_Y_full(filename):
     Y = np.loadtxt(filename, np.bool, skiprows=1, usecols=1, delimiter=',')
     return Y
 
-def load_split(Xfile, Yfile, percent_test, seed=100):
+def load_split(Xfile, Yfile, percent_test, data_type, seed=100):
     ''' Load files and split them into train and test examples.'''
-    X = np.loadtxt(Xfile)
+    X = np.loadtxt(Xfile, dtype=data_type)
     Y = np.loadtxt(Yfile, np.bool, skiprows=1, usecols=1, delimiter=',')
     assert X.shape[0] == Y.shape[0]
     npr.seed(seed)

@@ -9,7 +9,7 @@ import numpy.random as npr
 
 submit = False
 
-custom_features = False
+custom_features = True
 
 percent_test = 15
 
@@ -29,8 +29,10 @@ if submit:
 
 if custom_features:
     train_files = ['Xtr0.csv', 'Xtr1.csv', 'Xtr2.csv']
+    data_type = 'str'
 else:
     train_files = ['Xtr0_mat50.csv', 'Xtr1_mat50.csv', 'Xtr2_mat50.csv']
+    data_type = 'float'
 
 label_files = ['Ytr0.csv', 'Ytr1.csv', 'Ytr2.csv']
 
@@ -40,15 +42,15 @@ label_files = ['./data/{}'.format(file) for file in label_files]
 if __name__ == '__main__':
     np.random.seed(1984)
 
-    clf = classifier.RandomClassifier()
+    clf = classifier.SpectralKernelSVM(l=8)
 
     if submit:
         Ysub = []
         for i in range(3):
             print('Loading datasets {}...'.format(i))
-            Xtr = input_output.load_X_full(train_files[i])
+            Xtr = input_output.load_X_full(train_files[i], data_type)
             Ytr = input_output.load_Y_full(label_files[i])
-            Xte = input_output.load_X_full(submission_files[i])
+            Xte = input_output.load_X_full(submission_files[i], data_type)
 
             print("Training ...")
             clf.fit(Xtr, Ytr)
@@ -66,8 +68,8 @@ if __name__ == '__main__':
             print('Loading datasets {}...'.format(i))
             Xtr, Xte, Ytr, Yte = input_output.load_split(train_files[i],
                                                          label_files[i],
-                                                         percent_test)
-
+                                                         percent_test,
+                                                         data_type)
             print("Training ...")
             if grid_s:
                 grid_search.gridSearchCV(clf, Xtr, Ytr, param_grid,

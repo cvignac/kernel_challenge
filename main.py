@@ -3,8 +3,9 @@
 
 import classifier
 import input_output
+import grid_search
 import numpy as np
-
+import numpy.random as npr
 
 submit = True
 
@@ -14,6 +15,9 @@ percent_test = 15
 
 prefix = './data/'
 submit_file = 'Ysub.csv'
+
+grid_s = False
+param_grid = {}
 
 if submit:
     if custom_features:
@@ -65,7 +69,11 @@ if __name__ == '__main__':
                                                          percent_test)
 
             print("Training ...")
-            clf.fit(Xtr, Ytr)
+            if grid_s:
+                grid_search.gridSearchCV(clf, Xtr, Ytr, param_grid,
+                                         nfolds=3, verbose=0)
+            else:
+                clf.fit(Xtr, Ytr)
 
             print('Predicting ...')
             Ypred = clf.predict(Xte)

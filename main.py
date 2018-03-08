@@ -7,7 +7,7 @@ import grid_search
 import numpy as np
 import numpy.random as npr
 
-submit = True
+submit = False
 
 custom_features = False
 
@@ -75,11 +75,8 @@ if __name__ == '__main__':
             else:
                 clf.fit(Xtr, Ytr)
 
-            print('Predicting ...')
-            Ypred = clf.predict(Xte)
-
-            print('Evaluating ...')
-            accu = classifier.Classifier.score(Ypred, Yte)
+            print('Predicting and Evaluating...')
+            accu = clf.score(Xte, Yte)
             accuracies[i] = accu
             print('Accuracy:', accu * 100, '%')
 

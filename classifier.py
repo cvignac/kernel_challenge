@@ -19,12 +19,13 @@ class Classifier(ABC):
     def predict(self, X):
         return np.asarray(self.predict_proba(X) > 0.5, dtype=np.bool)
 
-    def score(Y, Ytrue):
+    def score(self, Xte, Yte):
         ''' Accuracy metric.'''
-        Y, Ytrue = Y.flatten(), Ytrue.flatten()
-        assert len(Y) == len(Ytrue), 'len(Y)={} but len(Ytrue)={}'.format(
-                len(Y), len(Ytrue))
-        return np.sum(Y == Ytrue) / len(Y)
+        Y = self.predict(Xte)
+        Y, Yte = Y.flatten(), Yte.flatten()
+        assert len(Y) == len(Yte), 'len(Y)={} but len(Ytrue)={}'.format(
+                len(Y), len(Yte))
+        return np.sum(Y == Yte) / len(Y)
 
 
 class RandomClassifier(Classifier):

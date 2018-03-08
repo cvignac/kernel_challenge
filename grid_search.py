@@ -4,12 +4,14 @@
 import numpy as np
 import numpy.random as npr
 
-def gridSearchCV(clf, X, Y, param_grid, loss=None, nfolds=3, verbose=0):
+def gridSearchCV(clf, X, Y, param_grid, loss=None, score=None,
+                 nfolds=3, verbose=0):
     ''' param_grid supports only one argument.
         clf (Classifier): classifier to use
         X, Y (ndarray, array): training set
-        loss (method): if None, the score function of clf is used
-                       else, the score used is -loss
+        score (method)
+        loss (method): the corresponding score is -loss
+        if score and loss are None, the score function of clf is used
         param_grid (dict): name of the parameter, values to test
         verbose (int): if > 0, messages are printed. '''
     for key, values in param_grid.items():
@@ -21,14 +23,14 @@ def gridSearchCV(clf, X, Y, param_grid, loss=None, nfolds=3, verbose=0):
         full = np.concatenate((X, Y), axis=1)
         npr.shuffle(full)
         X, Y = full[:, :-1], full[:, -1]
-
+        binary = len(np.unique(Y)) <= 2
         for i in range(nfolds):
             # Create training and validation set
             start = int(i * n / nfolds)
             end = int((i+1) * n / nfolds) if i != nfolds - 1 else n
             Xte = X[start: end]
             Yte = Y[start: end]
-            mask = np.ones(n, dtype=np.int)
+            mask = np.ones(n, dtype=np.bool)
             mask[start: end] = 0
             Xtr = X[mask]
             Ytr = Y[mask]
@@ -42,16 +44,17 @@ def gridSearchCV(clf, X, Y, param_grid, loss=None, nfolds=3, verbose=0):
                 clf.fit(Xtr, Ytr)
                 if verbose > 0:
                     print('Predicting...')
-                if hasattr(clf, 'predict_proba'):
+                if hasattr(clf, 'predict_proba') and binary:
                     pred = clf.predict_proba(Xte)
                 else:
                     print('Warning: predict was used instead of predict_proba')
                     pred = clf.predict(Xte)
-                if loss is None:
-                    scores[i, j] = clf.score(pred.reshape(-1, 1),
-                                             Yte.reshape(-1, 1))
-                else:
+                if loss is not None:
                     scores[i, j] =  - loss(pred, Yte)
+                elif score is not None:
+                    scores[i, j] = score(Yte, pred)
+                else:
+                    scores[i, j] = clf.score(pred, Yte)
         mean_score = np.mean(scores, axis=0)
         best = np.argmax(mean_score)
         if verbose > 0:
@@ -72,12 +75,23 @@ def gridSearchCV(clf, X, Y, param_grid, loss=None, nfolds=3, verbose=0):
 
 if __name__ == '__main__':
     # Scikit learn is used only for testing purpose
-    from sklearn.datasets import load_boston
-    from sklearn.linear_model import Ridge
-    from sklearn.metrics import mean_squared_error
-    mse = mean_squared_error
-    X, y = load_boston(return_X_y=True)
-    print(X.shape, y.shape)
-    clf = Ridge(alpha = 1)
-    param_grid = {'alpha': [0.1, 1, 10, 100]}
-    gridSearchCV(clf, X, y, param_grid, loss=mse, nfolds=3, verbose=1)
+    classification = True
+
+    if classification:
+        from sklearn.datasets import load_iris
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.metrics import accuracy_score
+        X, y = load_iris(return_X_y=True)
+        acc = accuracy_score
+        param_grid = {'C':[1e-6, 1e-3, 1, 1e3]}
+        clf = LogisticRegression()
+        gridSearchCV(clf, X, y, param_grid, score=acc, verbose=1)
+    else:
+        from sklearn.datasets import load_boston
+        from sklearn.linear_model import Ridge
+        from sklearn.metrics import mean_squared_error
+        mse = mean_squared_error
+        X, y = load_boston(return_X_y=True)
+        clf = Ridge(alpha = 1)
+        param_grid = {'alpha': [0.1, 1, 10, 100]}
+        gridSearchCV(clf, X, y, param_grid, loss=mse, nfolds=3, verbose=1)

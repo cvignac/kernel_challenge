@@ -65,12 +65,6 @@ class PCA:
             self.size += 1
         return(self.size)
 
-        S = np.dot(X.T, X)
-        eig = np.linalg.eig(S)
-        self.vectors = eig[1][:self.size]
-        self.vectors = self.to_real(self.vectors)
-        self.vectors = self.normalise_mat(self.vectors)
-
     def features(self, X):
         return(np.dot(X, self.vectors.T))
 

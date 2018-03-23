@@ -13,6 +13,7 @@ class PCA:
     def __init__(self,size):
         self.size = size
         self.vectors = np.zeros((size,size))
+        self.eig = []
         
     def to_real(self,M):
         n,m = np.shape(M)
@@ -25,10 +26,10 @@ class PCA:
     def norme(self,v):
         return(sqrt(np.dot(v,v.T)))
     
-    def normalise(v):
+    def normalise(self,v):
         return(v/self.norme(v))
         
-    def normalise_mat(V):
+    def normalise_mat(self,V):
         l = []
         for i,v in enumerate(V):
             l.append(self.normalise(v))
@@ -36,12 +37,25 @@ class PCA:
             
     def fit(self, X):
         S = np.dot(X.T,X)
-        eig = np.linalg.eig(S)
-        self.vectors = eig[1][:self.size]
-        self.vectors = to_real(self.vectors)
-        self.vectors = normalise_mat(self.vectors)
+        self.eig = np.linalg.eig(S)
+        self.vectors = self.eig[1][:self.size]
+        self.vectors = self.to_real(self.vectors)
+        self.vectors = self.normalise_mat(self.vectors)
         
     def features(self,X):
         return(np.dot(X,self.vectors.T))
         
-        
+    def variance_proportion(self):
+        s = sum(self.eig[0])
+        t = sum(self.eig[0][:self.size])
+        print(t)
+        return(t/s)
+
+    def choose_size(self, pourcentage_variance=0.8):
+        s = sum(self.eig[0])
+        t = 0
+        self.size = 0
+        while t < pourcentage_variance * s :
+            t += self.eig[0][self.size]
+            self.size += 1
+        return(self.size)

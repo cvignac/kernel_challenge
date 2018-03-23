@@ -21,15 +21,28 @@ class Linear(Kernel):
 
 class Gaussian(Kernel):
     def __init__(self, sigma):
-        self.sigma = sigma
+            self.sigma = sigma
 
     def __call__(self, X1, X2=None):
+        if self.sigma is None:
+            print('Warning: no value was passed for sigma.',
+                  'A default value is chosen')
+            self.sigma = self.get_base(X1)
+            print('Value chosen for sigma:', self.sigma)
+
         if X2 is None:
             K_condensed = squareform(pdist(X1, metric='euclidean'))
             return np.exp(- np.square(K_condensed) / (2 * self.sigma))
         else:
             K_condensed = cdist(X1, X2, metric='euclidean')
             return np.exp(- np.square(K_condensed) / (2 * self.sigma))
+
+    def get_base(self, X):
+        ''' Compute the average of the non-zero distances between all pairs
+            of points. '''
+        assert isinstance(X, np.ndarray), 'X should be a matrix'
+        distances = pdist(X, 'euclidean')
+        return np.mean(distances[np.nonzero(distances)])
 
 
 class Spectral(Kernel):
@@ -38,7 +51,6 @@ class Spectral(Kernel):
         if method == 'linear':
             self.k = Linear()
         elif method == 'gaussian':
-            assert sigma is not None, 'Gaussian kernel used but sigma=None'
             self.k = Gaussian(sigma)
         else:
             raise ValueError("Kernel '{}' not implemented".format(method))
@@ -86,7 +98,6 @@ class FoldedKSpectrum(Kernel):
         if 'method' == 'linear':
             self.k = Linear()
         elif 'method' == 'gaussian':
-            assert sigma is not None, 'Gaussian kernel used but sigma=None'
             self.k = Gaussian(sigma)
         else:
             raise ValueError("Kernel '{}' not implemented".format(method))

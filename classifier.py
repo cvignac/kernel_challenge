@@ -1,13 +1,14 @@
 import numpy as np
 from abc import ABC, abstractmethod
 import kernels
+import pca
 import feature_extractor as fe
 from sklearn import svm
 
 
 class Classifier(ABC):
     @abstractmethod
-    def __init__(self, l, C, method, sigma):
+    def __init__(self, l, C, method, sigma, pca_dim):
         '''Abstract class for a classifier.
             l (int): size of the individual sequences considered.
             C (float): penalization parameter for the SVM
@@ -19,20 +20,27 @@ class Classifier(ABC):
         self.sigma = sigma
         self.kernel = self.build_kernel(method, sigma)
         self.svm = svm.SVC(kernel=self.kernel, C=self.C)
+        self.pca = pca.PCA(pca_dim)
 
     def fit(self, X, y, dataset=None):
         self.kernel.sigma = self.sigma
         self.svm.C = self.C
         self.extractor.l = self.l
         features = self.extractor.build_features(X)
-        self.svm.fit(features, y)
-
-    def predict_proba(self, X, dataset=None):
-        pass
+        if self.pca.size == -1:
+            reduced = features
+        else:
+            self.pca.fit(features)
+            reduced = self.pca.features(features)
+        self.svm.fit(reduced, y)
 
     def predict(self, X, _=None):
         features = self.extractor.build_features(X)
-        return self.svm.predict(features)
+        if self.pca.size == -1:
+            reduced = self.pca.features(features)
+        else:
+            reduced = features
+        return self.svm.predict(reduced)
 
     def score(self, Xte, Yte, dataset):
         ''' Predict and compute the accuracy metric.'''
@@ -55,19 +63,22 @@ class Classifier(ABC):
 
 
 class SpectralKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
-        Classifier.__init__(self, l, C, method, sigma)
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
         self.extractor = fe.Spectral(l=l)
 
 
 class FoldedKSpectrumKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
         Classifier.__init__(self, l, C, method, sigma)
         self.extractor = fe.FoldedKSpectrum(self.l)
 
 
 class SubstringKernelSVM(Classifier):
-    def __init__(self, l=4, lambd=0.6, C=1.0, method='linear', sigma=None):
+    def __init__(self, l=4, lambd=0.6, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
         Classifier.__init__(self, l, C, method, sigma)
         self.extractor = fe.Substring(l, lambd)
 

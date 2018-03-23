@@ -10,6 +10,15 @@ class Kernel(ABC):
     def __call__(self, X1, X2=None):
         pass
 
+
+class Linear(Kernel):
+    def __call__(self, X1, X2=None):
+        if X2 is None:
+            return X1 @ X1.T
+        else:
+            return X1 @ X2.T
+
+
 class Gaussian(Kernel):
     def __init__(self, sigma):
         self.sigma = sigma
@@ -24,21 +33,31 @@ class Gaussian(Kernel):
 
 
 class Spectral(Kernel):
-    def __init__(self, l=3):
+    def __init__(self, l, method, sigma=None):
+        ''' method (str): 'gaussian' or 'linear'. '''
+        if method == 'linear':
+            self.k = Linear()
+        elif method == 'gaussian':
+            assert sigma is not None, 'Gaussian kernel used but sigma=None'
+            self.k = Gaussian(sigma)
+        else:
+            raise ValueError("Kernel '{}' not implemented".format(method))
+
         self.l = l
         self.z = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
     def __call__(self, X1, X2=None):
-        if X2 is None:
-            # X1_feat = self.build_features(X1)
-            X1_feat = X1
-            return X1_feat @ X1_feat.T
-        else:
-            # X1_feat = self.build_features(X1)
-            # X2_feat = self.build_features(X2)
-            X1_feat = X1
-            X2_feat = X2
-            return X1_feat @ X2_feat.T
+        return self.k(X1, X2)
+#        if X2 is None:
+#            # X1_feat = self.build_features(X1)
+#            X1_feat = X1
+#            return X1_feat @ X1_feat.T
+#        else:
+#            # X1_feat = self.build_features(X1)
+#            # X2_feat = self.build_features(X2)
+#            X1_feat = X1
+#            X2_feat = X2
+#            return X1_feat @ X2_feat.T
 
     def build_features(self, X):
         X_feat = np.zeros((X.shape[0], 4**self.l))
@@ -62,22 +81,31 @@ class Spectral(Kernel):
 
 
 class FoldedKSpectrum(Kernel):
-    def __init__(self, l=1):
+    def __init__(self, l, method, sigma=None):
+        ''' method (str): 'gaussian' or 'linear'. '''
+        if 'method' == 'linear':
+            self.k = Linear()
+        elif 'method' == 'gaussian':
+            assert sigma is not None, 'Gaussian kernel used but sigma=None'
+            self.k = Gaussian(sigma)
+        else:
+            raise ValueError("Kernel '{}' not implemented".format(method))
         self.l = l
         self.z = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
         self.li = self.generate_lists()
 
     def __call__(self, X1, X2=None):
-        if X2 is None:
-            # X1_feat = self.build_features(X1)
-            X1_feat = X1
-            return X1_feat @ X1_feat.T
-        else:
-            # X1_feat = self.build_features(X1)
-            # X2_feat = self.build_features(X2)
-            X1_feat = X1
-            X2_feat = X2
-            return X1_feat @ X2_feat.T
+        return self.k(X1, X2)
+#        if X2 is None:
+#            # X1_feat = self.build_features(X1)
+#            X1_feat = X1
+#            return X1_feat @ X1_feat.T
+#        else:
+#            # X1_feat = self.build_features(X1)
+#            # X2_feat = self.build_features(X2)
+#            X1_feat = X1
+#            X2_feat = X2
+#            return X1_feat @ X2_feat.T
 
     # TODO Define functions:
     # - To handle a 0 in the list (sum over one position in the sequence)

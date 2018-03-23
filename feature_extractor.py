@@ -36,7 +36,7 @@ class Spectral(FeatureExtractor):
 
 
 class FoldedKSpectrum(FeatureExtractor):
-    def __init__(self, l, method, sigma=None):
+    def __init__(self, l):
         self.l = l
         self.z = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
         self.li = self.generate_lists()

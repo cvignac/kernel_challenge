@@ -44,10 +44,18 @@ label_files = ['./data/{}'.format(file) for file in label_files]
 if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
-
-    k1 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=100, C=1.0)
-    k2 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=100, C=1.0)
-    k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=100, C=1.0)
+#    Observations
+#    sans PCA, sigma entre 1000 et 3000 donne les memes resultats
+#    pour cross valider sigma, decommenter les lignes dans kernel.py
+#   dataset 0 : prendre C=1
+#   dataset 1 : C <= 0.1 ne marche pas, C=1 ou 10 semble bien
+#   dataset 2: prendre C> 10 (100 semble bon)
+    k1 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian',
+                                             sigma=2000, C=5)
+    k2 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
+                                             C=10)
+    k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
+                                             C=100)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
 
     if submit:

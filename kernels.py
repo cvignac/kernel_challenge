@@ -38,10 +38,10 @@ class Gaussian(Kernel):
         else:
             K_condensed = cdist(X1, X2, metric='euclidean')
             K = np.exp(- np.square(K_condensed) / (2 * self.sigma))
-            print('Mean of K:', np.mean(K))
-            print('Std of K:', np.std(K))
-            print('10%:', np.percentile(K, 10))
-            print('90%:', np.percentile(K, 90))
+#            print('Mean of K:', np.mean(K))
+#            print('Std of K:', np.std(K))
+#            print('10%:', np.percentile(K, 10))
+#            print('90%:', np.percentile(K, 90))
             return K
 
     def get_base(self, X):

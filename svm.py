@@ -32,10 +32,6 @@ class svm :
         self.alpha = np.zeros(n)
         self.calcule_alpha()
         self.choix_support_vectors()
-   
-    def change_C(self,C):
-        self.C = C
-        self.lambd =1./C
                 
     def calcule_alpha(self,C = -1):
         if C >= 0 :

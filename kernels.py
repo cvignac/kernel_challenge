@@ -4,6 +4,8 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from scipy.spatial.distance import cdist, pdist, squareform
+import matplotlib.pyplot as plt
+
 
 class Kernel(ABC):
     @abstractmethod
@@ -31,10 +33,17 @@ class Gaussian(Kernel):
             print('Value chosen for sigma:', self.sigma)
         if X2 is None:
             K_condensed = squareform(pdist(X1, metric='euclidean'))
-            return np.exp(- np.square(K_condensed) / (2 * self.sigma))
+            K = np.exp(- np.square(K_condensed) / (2 * self.sigma))
+            return K
         else:
             K_condensed = cdist(X1, X2, metric='euclidean')
-            return np.exp(- np.square(K_condensed) / (2 * self.sigma))
+            K = np.exp(- np.square(K_condensed) / (2 * self.sigma))
+            print('Mean of K:', np.mean(K))
+            print('Std of K:', np.std(K))
+            print('10%:', np.percentile(K, 10))
+            print('90%:', np.percentile(K, 90))
+            return K
+
     def get_base(self, X):
         ''' Compute the average of the non-zero distances between all pairs
             of points. '''

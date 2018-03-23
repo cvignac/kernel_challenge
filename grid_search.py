@@ -4,7 +4,7 @@
 import numpy as np
 import numpy.random as npr
 
-def gridSearchCV(clf, X, Y, param_grid, loss=None, score=None,
+def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
                  nfolds=3, verbose=0):
     ''' param_grid supports only one argument.
         clf (Classifier): classifier to use
@@ -41,20 +41,22 @@ def gridSearchCV(clf, X, Y, param_grid, loss=None, score=None,
                 # Predict
                 if verbose > 0:
                     print('Training...')
-                clf.fit(Xtr, Ytr)
+                clf.fit(Xtr, Ytr, dataset)
                 if verbose > 0:
                     print('Predicting...')
-                if hasattr(clf, 'predict_proba') and binary:
-                    pred = clf.predict_proba(Xte)
+                if (loss is not None) or (score is not None):
+                    if hasattr(clf, 'predict_proba') and binary:
+                        pred = clf.predict_proba(Xte, dataset)
+                    else:
+                        print('Warning: predict was used',
+                              'instead of predict_proba')
+                        pred = clf.predict(Xte, dataset)
+                    if loss is not None:
+                        scores[i, j] = - loss(pred, Yte)
+                    else:
+                        scores[i, j] = score(Yte, pred)
                 else:
-                    print('Warning: predict was used instead of predict_proba')
-                    pred = clf.predict(Xte)
-                if loss is not None:
-                    scores[i, j] =  - loss(pred, Yte)
-                elif score is not None:
-                    scores[i, j] = score(Yte, pred)
-                else:
-                    scores[i, j] = clf.score(pred, Yte)
+                    scores[i, j] = clf.score(Xte, Yte, dataset)
         mean_score = np.mean(scores, axis=0)
         best = np.argmax(mean_score)
         if verbose > 0:

@@ -43,7 +43,11 @@ if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
 
-    clf = classifier.SpectralKernelSVM(l=6)
+    k1 = None
+    k2 = None
+    k3 = None
+    base_classifier = None
+    clf = classifier.MultipleKernelClassifier(base_classifier, k1, k2, k3)
 
     if submit:
         Ysub = []
@@ -54,10 +58,10 @@ if __name__ == '__main__':
             Xte = input_output.load_X_full(submission_files[i], data_type)
 
             print("Training ...")
-            clf.fit(Xtr, Ytr)
+            clf.fit(Xtr, Ytr, i)
 
             print('Predicting ...')
-            Ysub.append(clf.predict(Xte))
+            Ysub.append(clf.predict(Xte, i))
 
         print('Processing the results ...')
         input_output.process_submission_file(submit_file, Ysub)
@@ -74,17 +78,17 @@ if __name__ == '__main__':
                                                          seed = seed)
             print("Training ...")
             if grid_s:
-                grid_search.gridSearchCV(clf, Xtr, Ytr, param_grid,
+                grid_search.gridSearchCV(clf, Xtr, Ytr, i, param_grid,
                                          nfolds=3, verbose=0)
             else:
-                clf.fit(Xtr, Ytr)
+                clf.fit(Xtr, Ytr, i)
 
-            accu = clf.score(Xtr, Ytr)
+            accu = clf.score(Xtr, Ytr, i)
             accuracies[i] = accu
             print('Training accuracy:', accu * 100, '%')
 
             print('Predicting and Evaluating...')
-            accu = clf.score(Xte, Yte)
+            accu = clf.score(Xte, Yte, i)
             accuracies[i] = accu
             print('Accuracy:', accu * 100, '%')
 

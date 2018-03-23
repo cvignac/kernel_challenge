@@ -43,10 +43,10 @@ if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
 
-    k1 = None
-    k2 = None
-    k3 = None
-    clf = classifier.MultipleKernelClassifier(base_classifier, k1, k2, k3)
+    k1 = classifier.SpectralKernelSVM()
+    k2 = classifier.SpectralKernelSVM()
+    k3 = classifier.SpectralKernelSVM()
+    clf = classifier.MultipleKernelClassifier(k1, k2, k3)
 
     if submit:
         Ysub = []

@@ -25,7 +25,7 @@ class svm :
         self.K = np.zeros(1)
     
     def fit(self,G,y,):
-        self.lambd = 1/C
+        self.lambd = 1./self.C
         self.K = G
         n, d = np.shape(G)
         self.y = y.astype('double')*2 - np.ones(n)

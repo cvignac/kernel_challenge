@@ -34,7 +34,6 @@ class Classifier(ABC):
         if method == 'linear':
             return kernels.Linear()
         elif method == 'gaussian':
-            assert sigma is not None, 'Gaussian kernel used but sigma=None'
             return kernels.Gaussian(sigma)
         else:
             raise ValueError("Kernel '{}' not implemented".format(method))
@@ -65,7 +64,7 @@ class SpectralKernelSVM(Classifier):
 
     def fit(self, X, y, _=None):
         self.svm.C = self.C
-        self.ker.l = self.l
+        self.extractor.l = self.l
         features = self.extractor.build_features(X)
         self.svm.fit(features, y)
 

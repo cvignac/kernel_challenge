@@ -16,8 +16,8 @@ percent_test = 15
 prefix = './data/'
 submit_file = 'Ysub.csv'
 
-grid_s = False
-param_grid = {}
+grid_s = True
+param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
 
 if submit:
     if custom_features:
@@ -78,7 +78,7 @@ if __name__ == '__main__':
             print("Training ...")
             if grid_s:
                 grid_search.gridSearchCV(clf, Xtr, Ytr, i, param_grid,
-                                         nfolds=3, verbose=0)
+                                         nfolds=3, verbose=1)
             else:
                 clf.fit(Xtr, Ytr, i)
 

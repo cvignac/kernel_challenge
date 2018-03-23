@@ -10,15 +10,6 @@ class Kernel(ABC):
     def __call__(self, X1, X2=None):
         pass
 
-
-class Linear(Kernel):
-    def __call__(self, X1, X2=None):
-        if X2 is None:
-            return X1 @ X1.T
-        else:
-            return X1 @ X2.T
-
-
 class Gaussian(Kernel):
     def __init__(self, sigma):
         self.sigma = sigma
@@ -33,31 +24,21 @@ class Gaussian(Kernel):
 
 
 class Spectral(Kernel):
-    def __init__(self, l, method, sigma=None):
-        ''' method (str): 'gaussian' or 'linear'. '''
-        if method == 'linear':
-            self.k = Linear()
-        elif method == 'gaussian':
-            assert sigma is not None, 'Gaussian kernel used but sigma=None'
-            self.k = Gaussian(sigma)
-        else:
-            raise ValueError("Kernel '{}' not implemented".format(method))
-
+    def __init__(self, l=3):
         self.l = l
         self.z = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
     def __call__(self, X1, X2=None):
-        return self.k(X1, X2)
-#        if X2 is None:
-#            # X1_feat = self.build_features(X1)
-#            X1_feat = X1
-#            return X1_feat @ X1_feat.T
-#        else:
-#            # X1_feat = self.build_features(X1)
-#            # X2_feat = self.build_features(X2)
-#            X1_feat = X1
-#            X2_feat = X2
-#            return X1_feat @ X2_feat.T
+        if X2 is None:
+            # X1_feat = self.build_features(X1)
+            X1_feat = X1
+            return X1_feat @ X1_feat.T
+        else:
+            # X1_feat = self.build_features(X1)
+            # X2_feat = self.build_features(X2)
+            X1_feat = X1
+            X2_feat = X2
+            return X1_feat @ X2_feat.T
 
     def build_features(self, X):
         X_feat = np.zeros((X.shape[0], 4**self.l))
@@ -81,31 +62,22 @@ class Spectral(Kernel):
 
 
 class FoldedKSpectrum(Kernel):
-    def __init__(self, l, method, sigma=None):
-        ''' method (str): 'gaussian' or 'linear'. '''
-        if 'method' == 'linear':
-            self.k = Linear()
-        elif 'method' == 'gaussian':
-            assert sigma is not None, 'Gaussian kernel used but sigma=None'
-            self.k = Gaussian(sigma)
-        else:
-            raise ValueError("Kernel '{}' not implemented".format(method))
+    def __init__(self, l=1):
         self.l = l
         self.z = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
         self.li = self.generate_lists()
 
     def __call__(self, X1, X2=None):
-        return self.k(X1, X2)
-#        if X2 is None:
-#            # X1_feat = self.build_features(X1)
-#            X1_feat = X1
-#            return X1_feat @ X1_feat.T
-#        else:
-#            # X1_feat = self.build_features(X1)
-#            # X2_feat = self.build_features(X2)
-#            X1_feat = X1
-#            X2_feat = X2
-#            return X1_feat @ X2_feat.T
+        if X2 is None:
+            # X1_feat = self.build_features(X1)
+            X1_feat = X1
+            return X1_feat @ X1_feat.T
+        else:
+            # X1_feat = self.build_features(X1)
+            # X2_feat = self.build_features(X2)
+            X1_feat = X1
+            X2_feat = X2
+            return X1_feat @ X2_feat.T
 
     # TODO Define functions:
     # - To handle a 0 in the list (sum over one position in the sequence)
@@ -210,6 +182,132 @@ class FoldedKSpectrum(Kernel):
         return r0,r1
 
 
+class Substring(Kernel):
+    
+    def __init__(self,i,lambd,s='',t=''):
+        self.s = s
+        self.t = t
+        self.i = i
+        self.lambd = lambd
+        self.K1 = np.zeros((len(s),len(t)))
+        self.K_1 = np.zeros((len(s),len(t)))
+        self.K = np.zeros(self.i)
+        self.S = np.zeros((len(s),len(t)))
+        self.alphabet = ['A','C','T','G']
+        
+    def base(self):
+        S = ['']
+        for j in range(self.i):
+            S_ = []
+            for s in S :
+                for lettre in self.alphabet:
+                    S_.append(s+lettre)
+            S = S_
+        return(S)
+        
+    def reinitialise(self):
+        self.K1 = np.zeros((len(self.s),len(self.t)))
+        self.K_1 = np.zeros((len(self.s),len(self.t)))
+        self.K = np.zeros(self.i)
+        self.S = np.zeros((len(self.s),len(self.t)))
+        
+    def calcule_1(self):
+        for i in range(len(self.s)):
+            for j in range(len(self.t)):
+                if self.s[i] == self.t[j] :
+                    self.K1[i,j] = self.lambd**2
+                    self.K[0] += self.K1[i,j]
+        self.K_1 = self.K1.copy()
+        self.K1 = np.zeros((len(self.s),len(self.t)))
+        self.K[0] /= self.lambd**2
+        
+    def calcule(self,l):
+        self.S[0:(l-1),:] = 0
+        self.S[:,0:(l-1)] = 0
+        for i in range(len(self.s)):
+            for j in range(len(self.t)):
+                self.S[i,j] = self.K_1[i,j]
+                if i > 0 :
+                    self.S[i,j] += self.S[(i-1),j] * self.lambd
+                if j > 0 :
+                    self.S[i,j] += self.S[i,(j-1)] * self.lambd
+                if i > 0 and j > 0 :
+                    self.S[i,j] -= self.lambd**2 * self.S[(i-1),(j-1)]
+                if self.s[i] == self.t[j] and i > 0 and j > 0 :
+                    self.K1[i,j] = self.lambd**2 * self.S[(i-1),(j-1)]
+                    self.K[l-1] += self.K1[i,j]
+        self.K[l-1] /= self.lambd**(2*l)
+        self.K_1 = self.K1.copy()
+        self.K1 = np.zeros((len(self.s),len(self.t)))
+        
+    def calcul_total(self):
+        self.calcule_1()
+        for l in range(2,self.i+1):
+            self.calcule(l)
+
+    def value(self):
+        self.calcul_total()
+        return(self.K[self.i-1])
+        
+    def Gram_kernel(self,X):
+        n = len(X)
+        G = np.zeros((n,n))
+        for l, x1 in enumerate(X):
+            self.s = x1
+            for j, x2 in enumerate(X):   
+                if l <= j :
+                    self.t = x2
+                    self.reinitialise()
+                    G[l,j] = self.value()
+                    G[j,l] = G[l,j]
+        return(G)
+    
+    def Product(self,X,Y,i,lambd,titre):
+        n = len(X)
+        d = len(Y)
+        G = np.zeros((n,d))
+        for l, x1 in enumerate(X):
+            self.s = x1
+            for j, x2 in enumerate(Y):   
+                self.t = x2
+                self.reinitialise()
+                G[l,j] = self.value()
+        return(G)
+        
+    def calcule_feature(self,s,S=[]):
+        if S == []:
+            S = self.base()
+        l_s = []
+        self.s = s
+        for b in S :
+            self.t = b
+            self.reinitialise()
+            l_s.append(self.value())
+        return(l_s)
+        
+    def calcule_matrice_features(self,X,S=[]):
+        if S == []:
+            S = self.base()
+        l = []
+        for i,x in enumerate(X):
+            l.append(self.calcule_feature(x,S))
+        l = np.array(l)
+        return(l)
+        
+    def Gram_from_features(self,f1,f2):
+        return(np.dot(f1,f2.T))
+        
+    def Gram_Matrix(self,X,Y):
+        f1 = self.calcule_matrice_features(X)
+        f2 = self.calcule_matrice_features(Y)
+        return Gram_from_features(f1,f2)
+    
+    def __call__(self, X1, X2=None):
+        if X2 is None:
+            return(self.Gram_Matrix(X1,X1))
+        else:
+            return(self.Product(X1,X2))
+    
 
 if __name__ == '__main__':
     X = np.array([[0, 1, 2],

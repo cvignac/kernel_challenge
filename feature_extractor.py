@@ -144,20 +144,20 @@ class FoldedKSpectrum(FeatureExtractor):
 
 
 class Substring(FeatureExtractor):
-    def __init__(self,i,lambd,s='',t=''):
+    def __init__(self,l,lambd,s='',t=''):
         self.s = s
         self.t = t
-        self.i = i
+        self.l = l
         self.lambd = lambd
         self.K1 = np.zeros((len(s),len(t)))
         self.K_1 = np.zeros((len(s),len(t)))
-        self.K = np.zeros(self.i)
+        self.K = np.zeros(self.l)
         self.S = np.zeros((len(s),len(t)))
         self.alphabet = ['A','C','T','G']
 
     def base(self):
         S = ['']
-        for j in range(self.i):
+        for j in range(self.l):
             S_ = []
             for s in S :
                 for lettre in self.alphabet:
@@ -168,7 +168,7 @@ class Substring(FeatureExtractor):
     def reinitialise(self):
         self.K1 = np.zeros((len(self.s),len(self.t)))
         self.K_1 = np.zeros((len(self.s),len(self.t)))
-        self.K = np.zeros(self.i)
+        self.K = np.zeros(self.l)
         self.S = np.zeros((len(self.s),len(self.t)))
 
     def calcule_1(self):
@@ -202,12 +202,12 @@ class Substring(FeatureExtractor):
 
     def calcul_total(self):
         self.calcule_1()
-        for l in range(2,self.i+1):
+        for l in range(2,self.l+1):
             self.calcule(l)
 
     def value(self):
         self.calcul_total()
-        return(self.K[self.i-1])
+        return(self.K[self.l-1])
 
     def Gram_kernel(self,X):
         n = len(X)

@@ -57,12 +57,14 @@ class SpectralKernelSVM(Classifier):
     def __init__(self, l=3, C=1.0, method='linear', sigma=None):
         self.l = l
         self.C = C
+        self.sigma = sigma
         self.kernel = self.build_kernel(method, sigma)
         self.extractor = fe.Spectral(l=l)
         print('C',C)
         self.svm = svm.SVC(kernel=self.kernel, C=self.C, verbose=False)
 
     def fit(self, X, y, _=None):
+        self.kernel.sigma = self.sigma
         self.svm.C = self.C
         self.extractor.l = self.l
         features = self.extractor.build_features(X)
@@ -77,11 +79,13 @@ class FoldedKSpectrumKernelSVM(Classifier):
     def __init__(self, kernel, l=3, C=1.0, method='linear', sigma=None):
         self.l = l
         self.C = C
+        self.sigma = sigma
         self.kernel = self.build_kernel(method, sigma)
         self.extractor = fe.FoldedKSpectrum(self.l)
         self.svm = svm.SVC(kernel=self.kernel, C=self.C)
 
     def fit(self, X, y, _=None):
+        self.kernel.sigma = self.sigma
         self.svm.C = self.C
         self.extractor.l = self.l
         features = self.extractor.build_features(X)

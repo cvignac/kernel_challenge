@@ -17,7 +17,9 @@ prefix = './data/'
 submit_file = 'Ysub.csv'
 
 grid_s = True
-param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
+# param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
+# param_grid = {'l':[4, 5, 6]}
+param_grid = {'sigma':[100, 10, 1, 0.1]}
 
 if submit:
     if custom_features:
@@ -43,7 +45,7 @@ if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
 
-    k1 = classifier.SpectralKernelSVM(method='gaussian')
+    k1 = classifier.SpectralKernelSVM(l=6, method='gaussian')
     k2 = classifier.SpectralKernelSVM(method='gaussian')
     k3 = classifier.SpectralKernelSVM(l=4, method='gaussian')
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)

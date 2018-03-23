@@ -40,7 +40,8 @@ train_files = ['./data/{}'.format(file) for file in train_files]
 label_files = ['./data/{}'.format(file) for file in label_files]
 
 if __name__ == '__main__':
-    np.random.seed(1984)
+    seed = 1984
+    np.random.seed(seed)
 
     clf = classifier.SpectralKernelSVM(l=8)
 
@@ -69,13 +70,18 @@ if __name__ == '__main__':
             Xtr, Xte, Ytr, Yte = input_output.load_split(train_files[i],
                                                          label_files[i],
                                                          percent_test,
-                                                         data_type)
+                                                         data_type,
+                                                         seed = seed)
             print("Training ...")
             if grid_s:
                 grid_search.gridSearchCV(clf, Xtr, Ytr, param_grid,
                                          nfolds=3, verbose=0)
             else:
                 clf.fit(Xtr, Ytr)
+
+            accu = clf.score(Xtr, Ytr)
+            accuracies[i] = accu
+            print('Training accuracy:', accu * 100, '%')
 
             print('Predicting and Evaluating...')
             accu = clf.score(Xte, Yte)

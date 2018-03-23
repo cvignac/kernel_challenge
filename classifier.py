@@ -64,10 +64,28 @@ class KLR(Classifier):
 
 
 class SpectralKernelSVM(Classifier):
-    def __init__(self, l=3):
+    def __init__(self, l=3, C=1.0):
         self.l = l
         self.ker = kernels.Spectral(l=l)
-        self.svm = svm.SVC(kernel=self.ker)
+        print('C',C)
+        self.svm = svm.SVC(kernel=self.ker, C=C, verbose=False)
+
+    def fit(self, X, y):
+        print('lol')
+        self.svm.fit(self.ker.build_features(X), y)
+
+    def predict_proba(self, X):
+        pass
+
+    def predict(self, X):
+        return self.svm.predict(self.ker.build_features(X))
+
+
+class FoldedKSpectrumKernelSVM(Classifier):
+    def __init__(self, l=3, C=1.0):
+        self.l = l
+        self.ker = kernels.FoldedKSpectrum(l=l)
+        self.svm = svm.SVC(kernel=self.ker, C=C)
 
     def fit(self, X, y):
         self.svm.fit(self.ker.build_features(X), y)

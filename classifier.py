@@ -20,14 +20,16 @@ class Classifier(ABC):
         self.sigma = sigma
         self.kernel = self.build_kernel(method, sigma)
         self.svm = svm.SVC(kernel=self.kernel, C=self.C)
-        self.pca = pca.PCA(pca_dim)
+        self.pca_dim = pca_dim
+        if pca_dim != -1:
+            self.pca = pca.PCA(pca_dim)
 
     def fit(self, X, y, dataset=None):
         self.kernel.sigma = self.sigma
         self.svm.C = self.C
         self.extractor.l = self.l
         features = self.extractor.build_features(X)
-        if self.pca.size == -1:
+        if self.pca_dim == -1:
             reduced = features
         else:
             self.pca.fit(features)
@@ -36,7 +38,7 @@ class Classifier(ABC):
 
     def predict(self, X, _=None):
         features = self.extractor.build_features(X)
-        if self.pca.size == -1:
+        if self.pca_dim != -1:
             reduced = self.pca.features(features)
         else:
             reduced = features
@@ -72,14 +74,14 @@ class SpectralKernelSVM(Classifier):
 class FoldedKSpectrumKernelSVM(Classifier):
     def __init__(self, l=3, C=1.0, method='linear', sigma=None,
                  pca_dim=-1):
-        Classifier.__init__(self, l, C, method, sigma)
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
         self.extractor = fe.FoldedKSpectrum(self.l)
 
 
 class SubstringKernelSVM(Classifier):
     def __init__(self, l=4, lambd=0.6, C=1.0, method='linear', sigma=None,
                  pca_dim=-1):
-        Classifier.__init__(self, l, C, method, sigma)
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
         self.extractor = fe.Substring(l, lambd)
 
 

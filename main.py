@@ -43,7 +43,7 @@ if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
 
-    clf = classifier.SpectralKernelSVM(l=8)
+    clf = classifier.SpectralKernelSVM(l=6)
 
     if submit:
         Ysub = []

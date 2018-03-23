@@ -71,7 +71,6 @@ class SpectralKernelSVM(Classifier):
         self.svm = svm.SVC(kernel=self.ker, C=C, verbose=False)
 
     def fit(self, X, y):
-        print('lol')
         self.svm.fit(self.ker.build_features(X), y)
 
     def predict_proba(self, X):

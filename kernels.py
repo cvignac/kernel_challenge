@@ -66,7 +66,6 @@ class FoldedKSpectrum(Kernel):
         self.l = l
         self.z = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
         self.li = self.generate_lists()
-        print('li', self.li)
 
     def __call__(self, X1, X2=None):
         if X2 is None:

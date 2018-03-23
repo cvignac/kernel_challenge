@@ -1,36 +1,51 @@
 import numpy as np
-import numpy.random as npr
 from abc import ABC, abstractmethod
 import kernels
+import pca
 import feature_extractor as fe
 from sklearn import svm
 
 
 class Classifier(ABC):
     @abstractmethod
-    def __init__(self, l, C, method, sigma):
+    def __init__(self, l, C, method, sigma, pca_dim):
+        '''Abstract class for a classifier.
+            l (int): size of the individual sequences considered.
+            C (float): penalization parameter for the SVM
+            method (str): kernel to use: 'linear' or 'gaussian'
+            sigma (float): width of the gaussian kernel if method=='gaussian'.
+        '''
         self.l = l
         self.C = C
         self.sigma = sigma
         self.kernel = self.build_kernel(method, sigma)
         self.svm = svm.SVC(kernel=self.kernel, C=self.C)
+        self.pca_dim = pca_dim
+        if pca_dim != -1:
+            self.pca = pca.PCA(pca_dim)
 
     def fit(self, X, y, dataset=None):
         self.kernel.sigma = self.sigma
         self.svm.C = self.C
         self.extractor.l = self.l
         features = self.extractor.build_features(X)
-        self.svm.fit(features, y)
-
-    def predict_proba(self, X, dataset=None):
-        pass
+        if self.pca_dim == -1:
+            reduced = features
+        else:
+            self.pca.fit(features)
+            reduced = self.pca.features(features)
+        self.svm.fit(reduced, y)
 
     def predict(self, X, _=None):
         features = self.extractor.build_features(X)
-        return self.svm.predict(features)
+        if self.pca_dim != -1:
+            reduced = self.pca.features(features)
+        else:
+            reduced = features
+        return self.svm.predict(reduced)
 
     def score(self, Xte, Yte, dataset):
-        ''' Accuracy metric.'''
+        ''' Predict and compute the accuracy metric.'''
         Y = self.predict(Xte, dataset)
         Y, Yte = Y.flatten(), Yte.flatten()
         assert len(Y) == len(Yte), 'len(Y)={} but len(Ytrue)={}'.format(
@@ -38,7 +53,9 @@ class Classifier(ABC):
         return np.sum(Y == Yte) / len(Y)
 
     def build_kernel(self, method='linear', sigma=None):
-        ''' method (str): 'gaussian' or 'linear'. '''
+        ''' method (str): 'gaussian' or 'linear'
+            sigma (double): width of the gaussian kernel if method=='gaussian'.
+        '''
         if method == 'linear':
             return kernels.Linear()
         elif method == 'gaussian':
@@ -48,22 +65,31 @@ class Classifier(ABC):
 
 
 class SpectralKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
-        Classifier.__init__(self, l, C, method, sigma)
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
         self.extractor = fe.Spectral(l=l)
 
 
 class FoldedKSpectrumKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
-        Classifier.__init__(self, l, C, method, sigma)
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
         self.extractor = fe.FoldedKSpectrum(self.l)
 
 
+class SubstringKernelSVM(Classifier):
+    def __init__(self, l=4, lambd=0.6, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
+        self.extractor = fe.Substring(l, lambd)
+
+
 class MultipleKernelClassifier(Classifier):
-    def __init__(self, k1, k2, k3):
+    def __init__(self, c1, c2, c3):
         ''' classifier: typically, Logistic Regression or SVM
-        k1, k2, k3 ('Classifier' objects): kernels on each dataset. '''
-        self.ker = [k1, k2, k3]
+            c1, c2, c3 (Classifier): kernels on each dataset. '''
+        self.ker = [c1, c2, c3]
 
     def fit(self, X, y, dataset):
         ''' dataset (int): between 0 and 2. '''
@@ -76,6 +102,7 @@ class MultipleKernelClassifier(Classifier):
     def predict(self, X, dataset):
         return self.ker[dataset].predict(X)
 
+
 if __name__ == '__main__':
     # Tests go here
-    print(1)
+    print('Nothing to test')

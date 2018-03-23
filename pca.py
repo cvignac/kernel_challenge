@@ -8,20 +8,29 @@ Created on Fri Mar 23 14:50:51 2018
 import numpy as np
 from math import sqrt
 
+
 class PCA:
-    
-    def __init__(self,size):
+    def __init__(self, size):
         self.size = size
+<<<<<<< HEAD
         self.vectors = np.zeros((size,size))
         self.eig = []
         
     def to_real(self,M):
         n,m = np.shape(M)
         N = np.zeros((n,m))
+=======
+        self.vectors = np.zeros((size, size))
+
+    def to_real(self, M):
+        n, m = np.shape(M)
+        N = np.zeros((n, m))
+>>>>>>> ebbdf39220ee23988ae1b929ede616ddc67150aa
         for i in range(n):
             for j in range(m):
-                N[i,j] = M[i,j].real
+                N[i, j] = M[i, j].real
         return(N)
+<<<<<<< HEAD
     
     def norme(self,v):
         return(sqrt(np.dot(v,v.T)))
@@ -30,12 +39,23 @@ class PCA:
         return(v/self.norme(v))
         
     def normalise_mat(self,V):
+=======
+
+    def norme(self, v):
+        return(sqrt(np.dot(v, v.T)))
+
+    def normalise(self, v):
+        return(v / self.norme(v))
+
+    def normalise_mat(self, V):
+>>>>>>> ebbdf39220ee23988ae1b929ede616ddc67150aa
         l = []
-        for i,v in enumerate(V):
+        for i, v in enumerate(V):
             l.append(self.normalise(v))
-        return(np.array(l))  
-            
+        return(np.array(l))
+
     def fit(self, X):
+<<<<<<< HEAD
         S = np.dot(X.T,X)
         self.eig = np.linalg.eig(S)
         self.vectors = self.eig[1][:self.size]
@@ -59,3 +79,13 @@ class PCA:
             t += self.eig[0][self.size]
             self.size += 1
         return(self.size)
+=======
+        S = np.dot(X.T, X)
+        eig = np.linalg.eig(S)
+        self.vectors = eig[1][:self.size]
+        self.vectors = self.to_real(self.vectors)
+        self.vectors = self.normalise_mat(self.vectors)
+
+    def features(self, X):
+        return(np.dot(X, self.vectors.T))
+>>>>>>> ebbdf39220ee23988ae1b929ede616ddc67150aa

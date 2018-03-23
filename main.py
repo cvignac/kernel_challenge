@@ -46,7 +46,6 @@ if __name__ == '__main__':
     k1 = None
     k2 = None
     k3 = None
-    base_classifier = None
     clf = classifier.MultipleKernelClassifier(base_classifier, k1, k2, k3)
 
     if submit:

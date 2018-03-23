@@ -43,7 +43,7 @@ def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
 
             # Modify the classifier
             for j, param in enumerate(values):
-                setattr(clf, key, param)
+                setattr(clf.ker[dataset], key, param)
                 print(clf.C)
                 # Predict
                 if verbose > 0:

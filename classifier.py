@@ -72,32 +72,21 @@ class FoldedKSpectrumKernelSVM(Classifier):
 
 
 class MultipleKernelClassifier(Classifier):
-    def __init__(self, classifier, k1, k2, k3):
+    def __init__(self, k1, k2, k3):
         ''' classifier: typically, Logistic Regression or SVM
         k1, k2, k3 ('Kernel' objects): kernels on each dataset. '''
         self.ker = [k1, k2, k3]
-        self.base_classifier = classifier
 
     def fit(self, X, y, dataset):
         ''' dataset (int): between 0 and 2. '''
-        ker = self.ker[dataset]
-        features =  ker.build_features(X)
-        self.base_classifier.fit(features, y)
+        return self.ker[dataset].fit(X, y)
 
     def predict_proba(self, X, dataset):
         assert hasattr(self.classifier, 'predict_proba')
-        ker = self.ker[dataset]
-        features =  ker.build_features(X)
-        self.base_classifier.predict_probas(features)
+        return self.ker[dataset].predict_probas(X)
 
     def predict(self, X, dataset):
-        ker = self.ker[dataset]
-        features =  ker.build_features(X)
-        self.base_classifier.predict(features)
+        return self.ker[dataset].predict(X)
 
 if __name__ == '__main__':
     # Tests go here
-    Y1 = np.array([True, True, False])
-    Y2 = np.array([False, False, False])
-    print(Classifier.score(Y1, Y2))
-    pass

@@ -2,7 +2,7 @@ import numpy as np
 import numpy.random as npr
 from abc import ABC, abstractmethod
 import kernels
-
+import feature_extractor as fe
 from sklearn import svm
 
 
@@ -29,6 +29,16 @@ class Classifier(ABC):
                 len(Y), len(Yte))
         return np.sum(Y == Yte) / len(Y)
 
+    def build_kernel(self, method='linear', sigma=None):
+        ''' method (str): 'gaussian' or 'linear'. '''
+        if method == 'linear':
+            return kernels.Linear()
+        elif method == 'gaussian':
+            assert sigma is not None, 'Gaussian kernel used but sigma=None'
+            return kernels.Gaussian(sigma)
+        else:
+            raise ValueError("Kernel '{}' not implemented".format(method))
+
 
 class RandomClassifier(Classifier):
     def __init__(self):
@@ -48,39 +58,45 @@ class SpectralKernelSVM(Classifier):
     def __init__(self, l=3, C=1.0, method='linear', sigma=None):
         self.l = l
         self.C = C
-        self.ker = kernels.Spectral(l=l, method=method, sigma=sigma)
+        self.kernel = self.build_kernel(method, sigma)
+        self.extractor = fe.Spectral(l=l)
         print('C',C)
-        self.svm = svm.SVC(kernel=self.ker, C=self.C, verbose=False)
+        self.svm = svm.SVC(kernel=self.kernel, C=self.C, verbose=False)
 
     def fit(self, X, y, _=None):
         self.svm.C = self.C
         self.ker.l = self.l
-        self.svm.fit(self.ker.build_features(X), y)
+        features = self.extractor.build_features(X)
+        self.svm.fit(features, y)
 
     def predict(self, X, _=None):
-        return self.svm.predict(self.ker.build_features(X))
+        features = self.extractor.build_features(X)
+        return self.svm.predict(features)
 
 
 class FoldedKSpectrumKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
+    def __init__(self, kernel, l=3, C=1.0, method='linear', sigma=None):
         self.l = l
         self.C = C
-        self.ker = kernels.FoldedKSpectrum(self.l, method=method, sigma=sigma)
-        self.svm = svm.SVC(kernel=self.ker, C=self.C)
+        self.kernel = self.build_kernel(method, sigma)
+        self.extractor = fe.FoldedKSpectrum(self.l)
+        self.svm = svm.SVC(kernel=self.kernel, C=self.C)
 
     def fit(self, X, y, _=None):
         self.svm.C = self.C
-        self.ker.l = self.l
-        self.svm.fit(self.ker.build_features(X), y)
+        self.extractor.l = self.l
+        features = self.extractor.build_features(X)
+        self.svm.fit(features, y)
 
     def predict(self, X, _):
-        return self.svm.predict(self.ker.build_features(X))
+        features = self.extractor.build_features(X)
+        return self.svm.predict(features)
 
 
 class MultipleKernelClassifier(Classifier):
     def __init__(self, k1, k2, k3):
         ''' classifier: typically, Logistic Regression or SVM
-        k1, k2, k3 ('Kernel' objects): kernels on each dataset. '''
+        k1, k2, k3 ('Classifier' objects): kernels on each dataset. '''
         self.ker = [k1, k2, k3]
 
     def fit(self, X, y, dataset):

@@ -43,9 +43,9 @@ if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
 
-    k1 = classifier.SpectralKernelSVM(l=6, C=1.0)
-    k2 = classifier.SpectralKernelSVM(l=6, C=1.0)
-    k3 = classifier.SpectralKernelSVM(l=6, C=1.0)
+    k1 = classifier.SpectralKernelSVM(l=6)#method='gaussian', sigma=1)
+    k2 = classifier.SpectralKernelSVM(l=6)
+    k3 = classifier.SpectralKernelSVM(l=6)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
 
     if submit:

@@ -45,10 +45,10 @@ class RandomClassifier(Classifier):
 
 
 class SpectralKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0):
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
         self.l = l
         self.C = C
-        self.ker = kernels.Spectral(l=l)
+        self.ker = kernels.Spectral(l=l, method=method, sigma=sigma)
         print('C',C)
         self.svm = svm.SVC(kernel=self.ker, C=self.C, verbose=False)
 
@@ -62,10 +62,10 @@ class SpectralKernelSVM(Classifier):
 
 
 class FoldedKSpectrumKernelSVM(Classifier):
-    def __init__(self, l=3, C=1.0):
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
         self.l = l
         self.C = C
-        self.ker = kernels.FoldedKSpectrum(l=self.l)
+        self.ker = kernels.FoldedKSpectrum(self.l, method=method, sigma=sigma)
         self.svm = svm.SVC(kernel=self.ker, C=self.C)
 
     def fit(self, X, y, _=None):

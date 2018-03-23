@@ -8,18 +8,26 @@ from sklearn import svm
 
 class Classifier(ABC):
     @abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self, l, C, method, sigma):
+        self.l = l
+        self.C = C
+        self.sigma = sigma
+        self.kernel = self.build_kernel(method, sigma)
+        self.svm = svm.SVC(kernel=self.kernel, C=self.C)
 
-    @abstractmethod
     def fit(self, X, y, dataset=None):
-        pass
+        self.kernel.sigma = self.sigma
+        self.svm.C = self.C
+        self.extractor.l = self.l
+        features = self.extractor.build_features(X)
+        self.svm.fit(features, y)
 
     def predict_proba(self, X, dataset=None):
         pass
 
-    def predict(self, X, dataset=None):
-        return np.asarray(self.predict_proba(X, dataset) > 0.5, dtype=np.bool)
+    def predict(self, X, _=None):
+        features = self.extractor.build_features(X)
+        return self.svm.predict(features)
 
     def score(self, Xte, Yte, dataset):
         ''' Accuracy metric.'''
@@ -39,61 +47,16 @@ class Classifier(ABC):
             raise ValueError("Kernel '{}' not implemented".format(method))
 
 
-class RandomClassifier(Classifier):
-    def __init__(self):
-        '''For testing purpose only.'''
-        return
-
-    def fit(self, X, y, _=None):
-        return
-
-    def predict_proba(self, X, _=None):
-        n = X.shape[0]
-        Y = npr.rand(n)
-        return Y
-
-
 class SpectralKernelSVM(Classifier):
     def __init__(self, l=3, C=1.0, method='linear', sigma=None):
-        self.l = l
-        self.C = C
-        self.sigma = sigma
-        self.kernel = self.build_kernel(method, sigma)
+        Classifier.__init__(self, l, C, method, sigma)
         self.extractor = fe.Spectral(l=l)
-        print('C',C)
-        self.svm = svm.SVC(kernel=self.kernel, C=self.C, verbose=False)
-
-    def fit(self, X, y, _=None):
-        self.kernel.sigma = self.sigma
-        self.svm.C = self.C
-        self.extractor.l = self.l
-        features = self.extractor.build_features(X)
-        self.svm.fit(features, y)
-
-    def predict(self, X, _=None):
-        features = self.extractor.build_features(X)
-        return self.svm.predict(features)
 
 
 class FoldedKSpectrumKernelSVM(Classifier):
-    def __init__(self, kernel, l=3, C=1.0, method='linear', sigma=None):
-        self.l = l
-        self.C = C
-        self.sigma = sigma
-        self.kernel = self.build_kernel(method, sigma)
+    def __init__(self, l=3, C=1.0, method='linear', sigma=None):
+        Classifier.__init__(self, l, C, method, sigma)
         self.extractor = fe.FoldedKSpectrum(self.l)
-        self.svm = svm.SVC(kernel=self.kernel, C=self.C)
-
-    def fit(self, X, y, _=None):
-        self.kernel.sigma = self.sigma
-        self.svm.C = self.C
-        self.extractor.l = self.l
-        features = self.extractor.build_features(X)
-        self.svm.fit(features, y)
-
-    def predict(self, X, _):
-        features = self.extractor.build_features(X)
-        return self.svm.predict(features)
 
 
 class MultipleKernelClassifier(Classifier):

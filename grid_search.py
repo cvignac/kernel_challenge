@@ -43,8 +43,11 @@ def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
 
             # Modify the classifier
             for j, param in enumerate(values):
-                setattr(clf.ker[dataset], key, param)
-                print(clf.C)
+                if dataset==None:
+                    setattr(clf, key, param)
+                else:
+                    setattr(clf.ker[dataset], key, param)
+                    print((clf.ker[dataset]).C)
                 # Predict
                 if verbose > 0:
                     print('Training...')
@@ -74,10 +77,13 @@ def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
             print('Best parameter for ', key + ':', values[best])
 
         # Refit the classifier on the full dataset
-        setattr(clf, key, values[best])
+        if dataset==None:
+            setattr(clf, key, param)
+        else:
+            setattr(clf.ker[dataset], key, values[best])
         if verbose > 0:
             print('Reffiting...')
-        clf.fit(X, Y)
+        clf.fit(X, Y, dataset)
         if verbose > 0:
             print('Cross validation completed.')
 

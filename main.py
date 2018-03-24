@@ -19,7 +19,7 @@ submit_file = 'Ysub.csv'
 grid_s = False
 # param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
 # param_grid = {'l':[4, 5, 6]}
-param_grid = {'sigma':[100, 10, 1, 0.1]}
+param_grid = {'l':[4, 5, 6]}
 
 if submit:
     if custom_features:
@@ -47,15 +47,14 @@ if __name__ == '__main__':
 #    Observations
 #    sans PCA, sigma entre 1000 et 3000 donne les memes resultats
 #    pour cross valider sigma, decommenter les lignes dans kernel.py
-#   dataset 0 : prendre C=1
-#   dataset 1 : C <= 0.1 ne marche pas, C=1 ou 10 semble bien
-#   dataset 2: prendre C> 10 (100 semble bon)
-    k1 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian',
+# C a été choisi
+# Ça a l'air de marcher mieux sans pca
+    k1 = classifier.FoldedKSpectrumKernelSVM(l=6, method='gaussian',
                                              sigma=2000, C=5)
-    k2 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
+    k2 = classifier.FoldedKSpectrumKernelSVM(l=6, method='gaussian', sigma=2000,
                                              C=10)
     k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
-                                             C=100)
+                                             C=5)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
 
     if submit:

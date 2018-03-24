@@ -28,6 +28,9 @@ class Classifier(ABC):
         self.kernel.sigma = self.sigma
         self.svm.C = self.C
         self.extractor.l = self.l
+        if self.pca_dim != -1:
+            self.pca = pca.PCA(self.pca_dim)
+        self.pca_dim = self.pca_dim
         features = self.extractor.build_features(X)
         if self.pca_dim == -1:
             reduced = features

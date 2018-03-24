@@ -23,8 +23,8 @@ def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
         # Y = Y.reshape(-1, 1)
         p = npr.permutation(n)
         X, Y = X[p], Y[p]
-        print('X.shape', X.shape)
-        print('Y.shape', Y.shape)
+#        print('X.shape', X.shape)
+#        print('Y.shape', Y.shape)
         # full = np.concatenate((X, Y), axis=1)
         # npr.shuffle(full)
         # X, Y = full[:, :-1], full[:, -1]
@@ -34,7 +34,7 @@ def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
             start = int(i * n / nfolds)
             end = int((i+1) * n / nfolds) if i != nfolds - 1 else n
             Xte = X[start: end]
-            print(Xte.shape)
+#            print(Xte.shape)
             Yte = Y[start: end]
             mask = np.ones(n, dtype=np.bool)
             mask[start: end] = 0
@@ -47,7 +47,7 @@ def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
                     setattr(clf, key, param)
                 else:
                     setattr(clf.ker[dataset], key, param)
-                    print((clf.ker[dataset]).C)
+#                    print((clf.ker[dataset]).C)
                 # Predict
                 if verbose > 0:
                     print('Training...')

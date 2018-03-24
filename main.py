@@ -19,7 +19,7 @@ submit_file = 'Ysub.csv'
 grid_s = False
 # param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
 # param_grid = {'l':[4, 5, 6]}
-param_grid = {'sigma':[100, 10, 1, 0.1]}
+param_grid = {'sigma':[200]}
 
 if submit:
     if custom_features:
@@ -50,13 +50,13 @@ if __name__ == '__main__':
 #   dataset 0 : prendre C=1
 #   dataset 1 : C <= 0.1 ne marche pas, C=1 ou 10 semble bien
 #   dataset 2: prendre C> 10 (100 semble bon)
-    k1 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian',
-                                             sigma=2000, C=5)
+    k1 = classifier.FoldedKSpectrumKernelSVM(l=4, method='gaussian',
+                                             sigma=100, C=1)
     k2 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
                                              C=10)
     k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
                                              C=100)
-    clf = classifier.MultipleKernelClassifier(k1, k2, k3)
+    clf = classifier.MultipleKernelClassifier(k1,k2,k3)
 
     if submit:
         Ysub = []
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     else:
         accuracies = np.zeros(3)
         for i in range(3):
-            print('Loading datasets {}...'.format(i))
+            print('Loadig datasets {}...'.format(i))
             Xtr, Xte, Ytr, Yte = input_output.load_split(train_files[i],
                                                          label_files[i],
                                                          percent_test,

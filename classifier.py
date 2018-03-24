@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import kernels
 import pca
 import feature_extractor as fe
-from sklearn import svm
+import svm
 
 
 class Classifier(ABC):
@@ -19,8 +19,9 @@ class Classifier(ABC):
         self.C = C
         self.sigma = sigma
         self.kernel = self.build_kernel(method, sigma)
-        self.svm = svm.SVC(kernel=self.kernel, C=self.C)
+        self.svm = svm.svm(C=self.C)
         self.pca_dim = pca_dim
+        self.reduced = np.zeros(1)
         if pca_dim != -1:
             self.pca = pca.PCA(pca_dim)
 
@@ -34,7 +35,9 @@ class Classifier(ABC):
         else:
             self.pca.fit(features)
             reduced = self.pca.features(features)
-        self.svm.fit(reduced, y)
+        self.reduced = reduced
+        Gram_matrix = self.kernel(reduced,reduced)
+        self.svm.fit(Gram_matrix, y)
 
     def predict(self, X, _=None):
         features = self.extractor.build_features(X)
@@ -42,9 +45,10 @@ class Classifier(ABC):
             reduced = self.pca.features(features)
         else:
             reduced = features
-        return self.svm.predict(reduced)
+        G = self.kernel(reduced,self.reduced)
+        return self.svm.predict(G)
 
-    def score(self, Xte, Yte, dataset):
+    def score(self, Xte, Yte, dataset=None):
         ''' Predict and compute the accuracy metric.'''
         Y = self.predict(Xte, dataset)
         Y, Yte = Y.flatten(), Yte.flatten()

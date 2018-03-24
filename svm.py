@@ -57,6 +57,10 @@ class svm :
         P = np.dot(G_,alpha)
         prediction = np.array([signe(P[i]) for i in range(len(P))])
         return(prediction)
+        
+    def score(self,G,y):
+        y_pred = self.predict(G)
+        return(1-sum(abs(y_pred-y))/len(y))
             
         
             

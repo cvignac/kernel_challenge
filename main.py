@@ -19,7 +19,7 @@ submit_file = 'Ysub.csv'
 grid_s = False
 # param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
 # param_grid = {'l':[4, 5, 6]}
-param_grid = {'l':[4, 5, 6]}
+param_grid = {'sigma':[200]}
 
 if submit:
     if custom_features:
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     else:
         accuracies = np.zeros(3)
         for i in range(3):
-            print('Loading datasets {}...'.format(i))
+            print('Loadig datasets {}...'.format(i))
             Xtr, Xte, Ytr, Yte = input_output.load_split(train_files[i],
                                                          label_files[i],
                                                          percent_test,

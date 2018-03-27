@@ -257,7 +257,7 @@ class Substring_from_files(FeatureExtractor):
             return(np.loadtxt(features_files[self.dataset]))
         else :
             print('Substring from files can only be called by the original datasets.')
-            np.zeros((len(X),0))
+            return(np.zeros((len(X),1)))
             
 class Sum(FeatureExtractor):
     

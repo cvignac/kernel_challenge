@@ -15,9 +15,9 @@ from kernels import *
 
 percent_test = 15
 
-l = 6
+l = 5
 
-i = 1
+i = 2
 C = 0.8
 # Meilleurs paramètres l = 6, C = 3, 0.8 et 1.3 (respectivement pour chaque dataset)
 train_files = ['Xtr0.csv', 'Xtr1.csv', 'Xtr2.csv']

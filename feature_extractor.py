@@ -240,3 +240,31 @@ class Substring(FeatureExtractor):
             l.append(self.calcule_feature(x,S))
         l = np.array(l)
         return(l)
+        
+class Substring_from_files(FeatureExtractor):
+    
+    def __init__(self,dataset):
+        self.dataset = dataset
+        
+    def build_features(self,X): 
+        if len(X) == 2000 :
+            features_files = ['features_X0_p4_lambda0.6.txt', 'features_X2_p4_lambda0.6.txt','features_X0_p4_lambda0.6.txt'  ]
+            features_files = ['./substring/{}'.format(file) for file in features_files]
+            return(np.loadtxt(features_files[self.dataset]))
+        elif len(X) == 1000 :
+            features_files = ['features_test0_p4_lambda0.6.txt', 'features_test1_p4_lambda0.6.txt','features_test2_p4_lambda0.6.txt'  ]
+            features_files = ['./substring/{}'.format(file) for file in features_files]
+            return(np.loadtxt(features_files[self.dataset]))
+        else :
+            print('Substring from files can only be called by the original datasets.')
+            np.zeros((len(X),0))
+            
+class Sum(FeatureExtractor):
+    
+    def __init__(self,F1,F2):
+        self.F1 = F1
+        self.F2 = F2
+        
+    def build_features(self,X):
+        return(np.concatenate((self.F1.build_features(X),self.F2.build_features(X)),axis=1))
+

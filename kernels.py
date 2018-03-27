@@ -14,6 +14,7 @@ class Kernel(ABC):
 
 
 class Linear(Kernel):
+    ''' Linear Kernel. '''
     def __call__(self, X1, X2=None):
         if X2 is None:
             return X1 @ X1.T
@@ -23,6 +24,8 @@ class Linear(Kernel):
 
 class Gaussian(Kernel):
     def __init__(self, sigma):
+        ''' Gaussian kernel.
+            sigma (float): width of the kernel. '''
         self.sigma = sigma
 
     def __call__(self, X1, X2=None):

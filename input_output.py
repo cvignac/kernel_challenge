@@ -4,9 +4,12 @@
 import numpy as np
 import numpy.random as npr
 
+
 def process_submission_file(output_name, Ysub):
     ''' Save a csv file with the prediction and the correct format.
         Ysub: list of size 3, each one containing the predictions on 1 dataset.
+        output_name (str): file to output
+        Ysub (arr): predictions.
     '''
     Y0, Y1, Y2 = Ysub
     total_l = len(Y0) + len(Y1) + len(Y2)
@@ -21,10 +24,12 @@ def load_X_full(filename, data_type):
     X = np.loadtxt(filename, dtype=data_type)
     return X
 
+
 def load_Y_full(filename):
     ''' Load all the labels in order to train before submission.'''
     Y = np.loadtxt(filename, np.bool, skiprows=1, usecols=1, delimiter=',')
     return Y
+
 
 def load_split(Xfile, Yfile, percent_test, data_type, seed=100):
     ''' Load files and split them into train and test examples.'''

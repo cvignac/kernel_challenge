@@ -5,20 +5,19 @@ import classifier
 import input_output
 import grid_search
 import numpy as np
-import numpy.random as npr
 
-submit = False
+submit = True
+use_substring_kernel = True  # use the substring kernel for dataset 2
 
-custom_features = True
 
-percent_test = 15
+custom_features = True  # If False, use builtin features
 
-prefix = './data/'
-submit_file = 'Ysub.csv'
+percent_test = 15   # Percent of the dataset used for testing
 
-grid_s = False
-# param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
-# param_grid = {'l':[4, 5, 6]}
+prefix = './data/'  # Path to data
+submit_file = 'Ysub.csv'  # Output file
+
+grid_s = False                                # Perform grid search?
 param_grid = {'C': [.2, .5, .8, 1, 2, 5, 8]}
 
 if submit:
@@ -41,20 +40,16 @@ label_files = ['Ytr0.csv', 'Ytr1.csv', 'Ytr2.csv']
 train_files = ['./data/{}'.format(file) for file in train_files]
 label_files = ['./data/{}'.format(file) for file in label_files]
 
+
 if __name__ == '__main__':
     seed = 1984
     np.random.seed(seed)
-#    Observations
-#    sans PCA, sigma entre 1000 et 3000 donne les memes resultats
-#    pour cross valider sigma, decommenter les lignes dans kernel.py
-# C a été choisi
-# Ça a l'air de marcher mieux sans pca
-    k1 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear',
-                                             C=1)
-    k2 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear',
-                                             C=1)
-    k3 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear',
-                                             C=0.5)
+    k1 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear', C=1)
+    k2 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear', C=1)
+    if use_substring_kernel:
+        k3 = classifier.SumClassifier(dataset=2, l=6, C=0.5, method='linear')
+    else:
+        k3 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear', C=0.5)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
 
     if submit:
@@ -78,12 +73,12 @@ if __name__ == '__main__':
     else:
         accuracies = np.zeros(3)
         for i in range(3):
-            print('Loadig datasets {}...'.format(i))
+            print('Loading datasets {}...'.format(i))
             Xtr, Xte, Ytr, Yte = input_output.load_split(train_files[i],
                                                          label_files[i],
                                                          percent_test,
                                                          data_type,
-                                                         seed = seed)
+                                                         seed=seed)
             print("Training ...")
             if grid_s:
                 grid_search.gridSearchCV(clf, Xtr, Ytr, i, param_grid,

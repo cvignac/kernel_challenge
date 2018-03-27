@@ -16,10 +16,10 @@ percent_test = 15
 prefix = './data/'
 submit_file = 'Ysub.csv'
 
-grid_s = False
+grid_s = True
 # param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
 # param_grid = {'l':[4, 5, 6]}
-param_grid = {'sigma':[200]}
+param_grid = {'C': [.2, .5, .8, 1, 2, 5, 8]}
 
 if submit:
     if custom_features:
@@ -49,12 +49,12 @@ if __name__ == '__main__':
 #    pour cross valider sigma, decommenter les lignes dans kernel.py
 # C a été choisi
 # Ça a l'air de marcher mieux sans pca
-    k1 = classifier.FoldedKSpectrumKernelSVM(l=6, method='gaussian',
-                                             sigma=2000, C=5)
-    k2 = classifier.FoldedKSpectrumKernelSVM(l=6, method='gaussian', sigma=2000,
-                                             C=10)
-    k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='gaussian', sigma=2000,
-                                             C=5)
+    k1 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear',
+                                             C=1)
+    k2 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear',
+                                             C=1)
+    k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='linear',
+                                             C=0.8)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
 
     if submit:

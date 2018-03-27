@@ -5,7 +5,7 @@ import numpy as np
 import numpy.random as npr
 
 def gridSearchCV(clf, X, Y, dataset, param_grid, loss=None, score=None,
-                 nfolds=3, verbose=0):
+                 nfolds=3, verbose=1):
     ''' param_grid supports only one argument.
         clf (Classifier): classifier to use
         X, Y (ndarray, array): training set

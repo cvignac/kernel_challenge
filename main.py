@@ -16,10 +16,11 @@ percent_test = 15
 prefix = './data/'
 submit_file = 'Ysub.csv'
 
-grid_s = False
+grid_s = True
 # param_grid = {'C':[0.1, 0.05, 0.01, 0.005, 0.001]}
-# param_grid = {'l':[4, 5, 6]}
+# param_grid = {'l':[5, 6]}
 param_grid = {'C': [.2, .5, .8, 1, 2, 5, 8]}
+# param_grid = {'C': [.6, .7, .8, .9]}
 
 if submit:
     if custom_features:

@@ -49,16 +49,19 @@ class FoldedKSpectrum(FeatureExtractor):
     # at once (e.g. define a list of indices over which to sum, then shift?)
 
     def build_features(self, X):
-        X_feat = np.zeros((X.shape[0], 4**self.l))
+#        X_feat = np.zeros((X.shape[0], 4**self.l))
+        X_feat = []
         for i in range(X.shape[0]):
             sf = self.spectral_features(X[i])
             cur_row = []
             for lis in self.li:
                 cur_row += self.handle_zero_list(sf, lis)
-            if (i==0):
-                X_feat = np.array(cur_row).reshape(1,-1)
-            else:
-                X_feat = np.concatenate((X_feat, np.array(cur_row).reshape(1,-1)))
+            X_feat.append(cur_row)
+#            if (i==0):
+#                X_feat = np.array(cur_row).reshape(1,-1)
+#            else:
+#                X_feat = np.concatenate((X_feat, np.array(cur_row).reshape(1,-1)))
+        X_feat = np.vstack(X_feat)
         return X_feat
 
     def spectral_features(self, x):
@@ -134,13 +137,15 @@ class FoldedKSpectrum(FeatureExtractor):
 
 
     def split_list_0_1(self, li):
-        r0, r1 = [], []
-        for i in range(len(li)):
-            if (li[i]=='0'):
-                r0.append(i)
-            if (li[i]=='1'):
-                r1.append(i)
-        return r0,r1
+        return np.where(li=='0'), np.where(li=='1')
+#        r0, r1 = [], []
+#
+#        for i in range(len(li)):
+#            if (li[i]=='0'):
+#                r0.append(i)
+#            if (li[i]=='1'):
+#                r1.append(i)
+#        return r0,r1
 
 
 class Substring(FeatureExtractor):

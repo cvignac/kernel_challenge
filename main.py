@@ -62,9 +62,9 @@ if __name__ == '__main__':
         k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='linear',
                                              C=0.8)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
-    
-    
-    
+
+
+
 
     if submit:
         Ysub = []

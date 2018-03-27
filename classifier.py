@@ -116,6 +116,11 @@ class MultipleKernelClassifier(Classifier):
     def predict(self, X, dataset):
         return self.ker[dataset].predict(X)
 
+class SumClassifier(Classifier):
+    def __init__(self, dataset=2, l=3, C=1.0, method='linear', sigma=None,
+                 pca_dim=-1):
+        Classifier.__init__(self, l, C, method, sigma, pca_dim)
+        self.extractor = fe.Sum(fe.FoldedKSpectrum(self.l),fe.Substring_from_files(dataset))
 
 if __name__ == '__main__':
     # Tests go here

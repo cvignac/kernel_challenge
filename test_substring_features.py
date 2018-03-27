@@ -17,8 +17,8 @@ percent_test = 15
 
 l = 6
 
-i = 1
-C = 0.8
+i = 2
+C = 1
 # Meilleurs paramètres l = 6, C = 3, 0.8 et 1.3 (respectivement pour chaque dataset)
 train_files = ['Xtr0.csv', 'Xtr1.csv', 'Xtr2.csv']
 data_type = 'str'
@@ -34,6 +34,14 @@ print('Loading files')
 X = load_X_full(train_files[i],data_type)
 f = np.loadtxt(features_files[i])
 Y = load_Y_full(label_files[i])
+
+#%%
+print('Computing concatenated features')
+
+F1 = FoldedKSpectrum(l)
+F2 = Substring_from_files(i)
+F = Sum(F1,F2)
+Features = F.build_features(X)
 #%%
 print('Train test split')
 
@@ -44,22 +52,13 @@ A = list(range(n))
 ind_train, ind_test = train_test_split(A,test_size=percent_test/100)
 
 Xtr = X[ind_train]
-ftr = f[ind_train]
+features_train = Features[ind_train]
 Ytr = Y[ind_train]
 Xte = X[ind_test]
-fte = f[ind_test]
+features_test = Features[ind_test]
 Yte = Y[ind_test]
 
-#%%
-print('Computing kfloded features')
 
-F = FoldedKSpectrum(l)
-F_train = F.build_features(Xtr)
-F_test = F.build_features(Xte)
-#%%
-print('Merging features')
-features_train = np.concatenate((F_train,ftr),axis=1)
-features_test = np.concatenate((F_test,fte),axis=1)
 #%%
 print('Computing kernels')
 

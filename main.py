@@ -7,9 +7,11 @@ import grid_search
 import numpy as np
 import numpy.random as npr
 
-submit = False
+submit = True
 
-custom_features = True
+use_substring_kernel = False
+
+custom_features = True # if you want to use the substring kernel for dataset 2
 
 percent_test = 15
 
@@ -54,9 +56,15 @@ if __name__ == '__main__':
                                              C=1)
     k2 = classifier.FoldedKSpectrumKernelSVM(l=6, method='linear',
                                              C=1)
-    k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='linear',
+    if use_substring_kernel :
+        k3 = classifier.SumClassifier(dataset=2, l=6, C=1.3, method='linear')
+    else :
+        k3 = classifier.FoldedKSpectrumKernelSVM(l=5, method='linear',
                                              C=0.8)
     clf = classifier.MultipleKernelClassifier(k1, k2, k3)
+    
+    
+    
 
     if submit:
         Ysub = []

@@ -97,19 +97,6 @@ class FoldedKSpectrumKernelSVM(Classifier):
         self.extractor = fe.FoldedKSpectrum(self.l)
 
 
-class FoldedKSpectrumKernelSVM2(Classifier):
-    def __init__(self, l=3, C=1.0, method='linear', sigma=None,  pca_dim=-1):
-        ''' Folded Spectral kernel + SVM. Is used by SumClassifier.
-        l (int): size of the substrings
-        C (float): regularization parameter for the SVM
-        method (str): 'linear' or 'gaussian'
-        sigma (float): width of the gaussian kernel
-        pca_dim (int): number of dimensions to keep in the PCA. All if ==-1
-        '''
-        Classifier.__init__(self, l, C, method, sigma, pca_dim)
-        self.extractor = fe.FoldedKSpectrum2(self.l)
-
-
 class SubstringKernelSVM(Classifier):
     def __init__(self, l=4, lambd=0.6, C=1.0, method='linear', sigma=None,
                  pca_dim=-1):

@@ -11,16 +11,14 @@ from math import sqrt
 
 class PCA:
     def __init__(self, size):
+        ''' Chooses the number of dimensions to consider.
+        size (int) : number of dimensions.'''
         self.size = size
         self.vectors = np.zeros((size,size))
         self.eig = []
-        
-    def to_real(self,M):
-        n,m = np.shape(M)
-        N = np.zeros((n,m))
-        self.vectors = np.zeros((size, size))
 
-    def to_real(self, M):
+    def to_real(self, M): 
+        '''Takes the real value of a matrix.'''
         n, m = np.shape(M)
         N = np.zeros((n, m))
         for i in range(n):
@@ -29,18 +27,22 @@ class PCA:
         return(N)
     
     def norme(self,v):
+        '''l2 norm of a vector'''
         return(sqrt(np.dot(v,v.T)))
     
     def normalise(self,v):
+        '''Divides the vector by its norm.'''
         return(v/self.norme(v))
 
     def normalise_mat(self, V):
+        '''Normalises the rows of the matrix.'''
         l = []
         for i, v in enumerate(V):
             l.append(self.normalise(v))
         return(np.array(l))
 
     def fit(self, X):
+        '''Select the vectors of the pca.'''
         S = np.dot(X.T,X)
         self.eig = np.linalg.eig(S)
         self.vectors = self.eig[1][:self.size]
@@ -48,15 +50,18 @@ class PCA:
         self.vectors = self.normalise_mat(self.vectors)
         
     def features(self,X):
+        '''Computes the features of a set of vectors X according to the pca vectors.'''
         return(np.dot(X,self.vectors.T))
         
     def variance_proportion(self):
+        '''Variance explained by the pca.'''
         s = sum(self.eig[0])
         t = sum(self.eig[0][:self.size])
         print(t)
         return(t/s)
 
     def choose_size(self, pourcentage_variance=0.8):
+        '''Set the variance explained by the pca.'''
         s = sum(self.eig[0])
         t = 0
         self.size = 0
@@ -65,6 +70,5 @@ class PCA:
             self.size += 1
         return(self.size)
 
-    def features(self, X):
-        return(np.dot(X, self.vectors.T))
+
 

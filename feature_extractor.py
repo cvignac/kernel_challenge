@@ -160,7 +160,10 @@ class FoldedKSpectrum(FeatureExtractor):
 
 
 class Substring(FeatureExtractor):
+    '''Substring kernel computed with dynamic programming.'''
     def __init__(self,l,lambd,s='',t=''):
+        ''' l (int) : length of the substrings.
+        lambd (float) : penalization parameter.'''
         self.s = s
         self.t = t
         self.l = l
@@ -258,6 +261,7 @@ class Substring(FeatureExtractor):
         return(l)
 
 class Substring_from_files(FeatureExtractor):
+    ''' Load the features in the files of the folder substring.'''
 
     def __init__(self,dataset):
         self.dataset = dataset

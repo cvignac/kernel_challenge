@@ -15,7 +15,7 @@ custom_features = True  # If False, use builtin features
 percent_test = 15   # Percent of the dataset used for testing
 
 prefix = './data/'  # Path to data
-submit_file = 'Ysub.csv'  # Output file
+submit_file = 'Yte.csv'  # Output file
 
 grid_s = False                                # Perform grid search?
 param_grid = {'C': [.2, .5, .8, 1, 2, 5, 8]}
